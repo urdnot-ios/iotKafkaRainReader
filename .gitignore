@@ -1,0 +1,11 @@
+# Project exclude paths
+/project/project/target/
+/project/target/
+/target/
+/target/scala-2.13/classes/
+.idea/
+.DS_Store
+/docker_test_client
+/security
+keystore.jks
+*.tar
