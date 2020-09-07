@@ -4,7 +4,9 @@ import sbt.Keys.mappings
 organization := "com.urdnot.iot"
 
 name := "iotKafkaRainReader"
-packageName := s"${organization}.rain"
+
+// Docker image name:
+packageName := s"${name.value.toLowerCase}"
 
 version := "2.0.1"
 
@@ -44,8 +46,8 @@ libraryDependencies ++= {
 }
 
 enablePlugins(DockerPlugin)
-
-mainClass in (Compile, assembly) := Some(s"${packageName}.DataReader")
+mainClass := Some(s"${organization.value}.rain.DataReader")
+mainClass in (Compile, assembly) := Some(s"${mainClass.value}")
 
 assemblyJarName := s"${name.value}.v${version.value}.jar"
 val meta = """META.INF(.)*""".r
@@ -68,7 +70,6 @@ dockerUpdateLatest := true
 dockerPackageMappings in Docker += file(s"target/scala-2.13/${assemblyJarName.value}") -> s"opt/docker/${assemblyJarName.value}"
 mappings in Docker += file("src/main/resources/application.conf") -> "opt/docker/application.conf"
 mappings in Docker += file("src/main/resources/logback.xml") -> "opt/docker/logback.xml"
-dockerExposedPorts := Seq(8081)
 
 dockerCommands := Seq(
   Cmd("FROM", "openjdk:11-jdk-slim"),
@@ -77,5 +78,5 @@ dockerCommands := Seq(
   Cmd("COPY", "opt/docker/application.conf", "/var/application.conf"),
   Cmd("COPY", "opt/docker/logback.xml", "/var/logback.xml"),
   Cmd("ENV", "CLASSPATH=/opt/docker/application.conf:/opt/docker/logback.xml"),
-  Cmd("ENTRYPOINT", s"java -cp /opt/docker/${assemblyJarName.value} ${mainClass}")
+  Cmd("ENTRYPOINT", s"java -cp /opt/docker/${assemblyJarName.value} ${mainClass.value.get}")
 )
